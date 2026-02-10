@@ -23,34 +23,42 @@ public:
 
 private:
   void start_motion_sequence() {
+
+    std::this_thread::sleep_for(4s);
+
     // Moving Forward
     RCLCPP_INFO(this->get_logger(), "Move forward");
-    set_wheel_speeds(1.0, 1.0, 1.0, 1.0);
+    // set_wheel_speeds(1.0, 1.0, 1.0, 1.0);
+    set_wheel_speeds(3.0, 3.0, 3.0, 3.0);
     std::this_thread::sleep_for(3s);
 
     // Moving Backward
     RCLCPP_INFO(this->get_logger(), "Move backward");
-    set_wheel_speeds(-1.0, -1.0, -1.0, -1.0);
+    // set_wheel_speeds(-1.0, -1.0, -1.0, -1.0);
+    set_wheel_speeds(-3.0, -3.0, -3.0, -3.0);
     std::this_thread::sleep_for(3s);
 
     // Moving Left side
     RCLCPP_INFO(this->get_logger(), "Move sideways-left");
-    set_wheel_speeds(-1.0, 1.0, -1.0, 1.0);
+    // set_wheel_speeds(-1.0, 1.0, 1.0, -1.0);
+    set_wheel_speeds(-3.0, 3.0, 3.0, -3.0);
     std::this_thread::sleep_for(3s);
 
     // Moving Right side
     RCLCPP_INFO(this->get_logger(), "Move sideways-right");
-    set_wheel_speeds(1.0, -1.0, 1.0, -1.0);
+    // set_wheel_speeds(1.0, -1.0, -1.0, 1.0);
+    set_wheel_speeds(3.0, -3.0, -3.0, 3.0);
     std::this_thread::sleep_for(3s);
 
     // Moving Turn Clockwise
     RCLCPP_INFO(this->get_logger(), "Turn clockwise");
-    set_wheel_speeds(1.0, -1.0, -1.0, 1.0);
+    set_wheel_speeds(3.0, -3.0, 3.0, -3.0);
+    // set_wheel_speeds(1.0, -1.0, 1.0, -1.0);
     std::this_thread::sleep_for(3s);
 
     // Moving Turn Counter Clock wise
     RCLCPP_INFO(this->get_logger(), "Turn counter-clockwise");
-    set_wheel_speeds(-1.0, 1.0, 1.0, -1.0);
+    set_wheel_speeds(-3.0, 3.0, -3.0, 3.0);
     std::this_thread::sleep_for(3s);
 
     // Stop

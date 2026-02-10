@@ -1,26 +1,27 @@
 # Kinematic Model of the ROSBot XL robot
 Package to demonstrate simple kinematic motions for ROSBot XL robot   
 
-## Creat `wheel_velocities_publisher` Package
+## Wheel Velocity Publisher
+### Creat `wheel_velocities_publisher` Package
 
 ```bash.sh
 ros2 pkg create wheel_velocities_publisher --build-type ament_cmake --dependencies rclcpp std_msgs
 ```
 
-## Building package
+### Building package
 ```bash.sh
 cd ~/ros2_ws
 colcon build
 ```
 
-## Starting the Simulation
+### Starting the Simulation
 **Requires dependent packages from `theConstruct` workspace
 ```bash.sh
 source ~/ros2_ws/install/setup.bash
 ros2 launch rosbot_xl_gazebo simulation.launch.py
 ```
 
-## Initiate Basic Motion Sequence
+### Initiate Basic Motion Sequence
 ```bash.sh
 source ~/ros2_ws/install/setup.bash
 ros2 run wheel_velocities_publisher wheel_velocities_publisher
@@ -36,9 +37,17 @@ expected output:
 [INFO] [1770732880.509803681] [wheel_velocities_publisher_node]: Turn counter-clockwise
 [INFO] [1770732883.509993161] [wheel_velocities_publisher_node]: Stop
 ```
-## Topics confirmation
+### Topics confirmation
 The wheel speed for individual wheels are being published under the topic `/wheel_speed`.
 ```bash.sh
 source ~/ros2_ws/install/setup.bash
 ros2 topic echo /wheel_speed
 ```
+
+## Kinematic Model 
+### Creat `wheel_velocities_publisher` Package
+
+```bash.sh
+ros2 pkg create kinematic_model --build-type ament_cmake --dependencies rclcpp std_msgs geometry_msgs
+```
+
