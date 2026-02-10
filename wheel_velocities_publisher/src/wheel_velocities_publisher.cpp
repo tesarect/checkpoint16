@@ -10,19 +10,45 @@ public:
         "/wheel_speed", 10);
 
     timer_ = this->create_wall_timer(
-        100ms, std::bind(&WheelVelocitiesPublisher::publish_message, this));
+        100ms, std::bind(&WheelVelocitiesPublisher::start_motion_sequence, this));
+    
+    RCLCPP_INFO(this->get_logger(), "Initialized wheel velocities publisher node");
   }
 
 private:
-  void publish_message() {
-    // {front_left, front_right, rear_left, rear_right}
-    msg.data = {1.0f, 1.0f, 1.0f, 1.0f};
+  void start_motion_sequence() {
+    // Moving Forward
+    RCLCPP_INFO(this->get_logger(), "Move forward");
+    set_wheel_speeds(1.0, 1.0, 1.0, 1.0);
 
-    publisher_->publish(msg);
-    RCLCPP_INFO(this->get_logger(), "Published wheel velocities");
+    // Moving Backward
+    RCLCPP_INFO(this->get_logger(), "Move backward");
+    set_wheel_speeds(-1.0, -1.0, -1.0, -1.0);
+
+    // Moving Left side
+    RCLCPP_INFO(this->get_logger(), "Move sideways-left");
+    set_wheel_speeds(-1.0, 1.0, -1.0, 1.0);
+
+    // Moving Right side
+    RCLCPP_INFO(this->get_logger(), "Move sideways-right");
+    set_wheel_speeds(1.0, -1.0, 1.0, -1.0);
+
+    // Moving Turn Clockwise
+    RCLCPP_INFO(this->get_logger(), "Move clockwise");
+    set_wheel_speeds(1.0, -1.0, -1.0, 1.0);
+
+    // Moving Turn Counter Clock wise
+    RCLCPP_INFO(this->get_logger(), "Move counter-clockwise");
+    set_wheel_speeds(-1.0, 1.0, 1.0, -1.0);
   }
 
-  std_msgs::msg::Float32MultiArray msg;
+  void set_wheel_speeds(float fl, float fr, float rl, float rr) {
+    // {front_left, front_right, rear_left, rear_right}
+    msg_.data = {fl, fr, rl, rr};
+    publisher_->publish(msg_);
+  }
+
+  std_msgs::msg::Float32MultiArray msg_;
   rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
