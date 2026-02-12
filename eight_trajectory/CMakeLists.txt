@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(kinematic_model)
+project(eight_trajectory)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -9,7 +9,9 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -24,17 +26,19 @@ if(BUILD_TESTING)
 endif()
 
 # Add executable
-add_executable(kinematic_model src/kinematic_model.cpp)
+add_executable(eight_trajectory src/eight_trajectory.cpp)
 ament_target_dependencies(
-  kinematic_model 
+  eight_trajectory 
   rclcpp 
   std_msgs
-  geometry_msgs
+  nav_msgs
+  tf2
+  tf2_ros
 )
 
 # Install executable
 install(TARGETS
-  kinematic_model
+  eight_trajectory
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -44,12 +48,11 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
-# Install individual files
-install(FILES
-  real_robot.rviz
-  DESTINATION share/${PROJECT_NAME}/
+install(
+  PROGRAMS
+    scripts/loop_trajectory.py
+  DESTINATION lib/${PROJECT_NAME}
 )
-
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

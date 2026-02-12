@@ -1,30 +1,24 @@
 # Kinematic Model of the ROSBot XL robot
-Package to demonstrate simple kinematic motions for ROSBot XL robot   
+Package to demonstrate simple kinematic motions and a pattern path that looks like `8` for ROSBot XL robot   
 
-## Wheel Velocity Publisher
-### Creat `wheel_velocities_publisher` Package
-
-```bash.sh
-ros2 pkg create wheel_velocities_publisher --build-type ament_cmake --dependencies rclcpp std_msgs
-```
-
-### Building package
-```bash.sh
-cd ~/ros2_ws
-colcon build
-```
-
-### Starting the Simulation
+## Starting the Simulation
 **Requires dependent packages from `theConstruct` workspace
 ```bash.sh
 source ~/ros2_ws/install/setup.bash
 ros2 launch rosbot_xl_gazebo simulation.launch.py
 ```
-
+## Wheel Velocity Publisher
 ### Initiate Basic Motion Sequence
+A simple motion sequence like
+- Move Forward & Backward
+- Move Sideways (Left and Right)
+- Turn (Clockwise and Counte-Clockwise)
+
+will be executed, each for 3 seconds. 
+Launch the Simulation first and then launch `wheel_velocities_publisher`
 ```bash.sh
 source ~/ros2_ws/install/setup.bash
-ros2 run wheel_velocities_publisher wheel_velocities_publisher
+source ~/ros2_ws/install/setup.bash && ros2 run wheel_velocities_publisher wheel_velocities_publisher
 ```
 expected output:
 ```
@@ -44,10 +38,18 @@ source ~/ros2_ws/install/setup.bash
 ros2 topic echo /wheel_speed
 ```
 
-## Kinematic Model 
-### Creat `wheel_velocities_publisher` Package
-
+## Motion wrt Absolute Frame
+### Initiate the pattern path `8`
+Here the ROSbot XL will execute a bunch of waypoints that replicates a pattern `8`.
+Launch the Simulation first and then launch `eight_trajectory`
 ```bash.sh
-ros2 pkg create kinematic_model --build-type ament_cmake --dependencies rclcpp std_msgs geometry_msgs
+source ~/ros2_ws/install/setup.bash && ros2 launch eight_trajectory eight_trajectory.launch.py
 ```
 
+## Package creation and dependencies
+
+```bash.sh
+ros2 pkg create wheel_velocities_publisher --build-type ament_cmake --dependencies rclcpp std_msgs
+ros2 pkg create kinematic_model --build-type ament_cmake --dependencies rclcpp std_msgs geometry_msgs
+ros2 pkg create eight_trajectory --build-type ament_cmake --dependencies rclcpp std_msgs nav_msgs tf2 tf2_ros
+```

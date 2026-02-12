@@ -1,80 +1,93 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
-#include <thread>
 
 using namespace std::chrono_literals;
 
 class WheelVelocitiesPublisher : public rclcpp::Node {
 public:
-  WheelVelocitiesPublisher() : Node("wheel_velocities_publisher_node") {
+  WheelVelocitiesPublisher()
+      : Node("wheel_velocities_publisher"), motion_index_(0) {
     publisher_ = this->create_publisher<std_msgs::msg::Float32MultiArray>(
         "/wheel_speed", 10);
 
-    // timer_ = this->create_wall_timer(
-    //     100ms, std::bind(&WheelVelocitiesPublisher::start_motion_sequence,
-    //     this));
+    // Wait for subscriber to connect
+    while (publisher_->get_subscription_count() == 0 && rclcpp::ok()) {
+      RCLCPP_INFO(this->get_logger(), "Waiting for /wheel_speed subscriber");
+      rclcpp::sleep_for(std::chrono::milliseconds(200));
+    }
 
     RCLCPP_INFO(this->get_logger(),
                 "Initialized wheel velocities publisher node");
 
-    // Execute the motion sequence once
-    start_motion_sequence();
+    timer_ = this->create_wall_timer(
+        50ms, std::bind(&WheelVelocitiesPublisher::timer_callback, this));
+
+    // Record start time
+    motion_start_time_ = this->now();
+    set_current_motion(0);
   }
 
 private:
-  void start_motion_sequence() {
+  void timer_callback() {
+    // Check if current motion is running for 3 seconds
+    auto elapsed = (this->now() - motion_start_time_).seconds();
 
-    std::this_thread::sleep_for(4s);
+    if (elapsed >= 3.0) {
+      motion_index_++;
 
-    // Moving Forward
-    RCLCPP_INFO(this->get_logger(), "Move forward");
-    // set_wheel_speeds(1.0, 1.0, 1.0, 1.0);
-    set_wheel_speeds(3.0, 3.0, 3.0, 3.0);
-    std::this_thread::sleep_for(3s);
+      // End of motion sequence
+      if (motion_index_ >= 7) {
+        timer_->cancel();
+        return;
+      }
 
-    // Moving Backward
-    RCLCPP_INFO(this->get_logger(), "Move backward");
-    // set_wheel_speeds(-1.0, -1.0, -1.0, -1.0);
-    set_wheel_speeds(-3.0, -3.0, -3.0, -3.0);
-    std::this_thread::sleep_for(3s);
+      // Reset timer and set next motion
+      motion_start_time_ = this->now();
+      set_current_motion(motion_index_);
+    }
 
-    // Moving Left side
-    RCLCPP_INFO(this->get_logger(), "Move sideways-left");
-    // set_wheel_speeds(-1.0, 1.0, 1.0, -1.0);
-    set_wheel_speeds(-3.0, 3.0, 3.0, -3.0);
-    std::this_thread::sleep_for(3s);
-
-    // Moving Right side
-    RCLCPP_INFO(this->get_logger(), "Move sideways-right");
-    // set_wheel_speeds(1.0, -1.0, -1.0, 1.0);
-    set_wheel_speeds(3.0, -3.0, -3.0, 3.0);
-    std::this_thread::sleep_for(3s);
-
-    // Moving Turn Clockwise
-    RCLCPP_INFO(this->get_logger(), "Turn clockwise");
-    set_wheel_speeds(3.0, -3.0, 3.0, -3.0);
-    // set_wheel_speeds(1.0, -1.0, 1.0, -1.0);
-    std::this_thread::sleep_for(3s);
-
-    // Moving Turn Counter Clock wise
-    RCLCPP_INFO(this->get_logger(), "Turn counter-clockwise");
-    set_wheel_speeds(-3.0, 3.0, -3.0, 3.0);
-    std::this_thread::sleep_for(3s);
-
-    // Stop
-    RCLCPP_INFO(this->get_logger(), "Stop");
-    set_wheel_speeds(0.0, 0.0, 0.0, 0.0);
+    // Publish current wheel speeds
+    publisher_->publish(current_msg_);
   }
 
-  void set_wheel_speeds(float fl, float fr, float rl, float rr) {
-    // {front_left, front_right, rear_left, rear_right}
-    msg_.data = {fl, fr, rl, rr};
-    publisher_->publish(msg_);
+  void set_current_motion(int index) {
+    switch (index) {
+    case 0:
+      RCLCPP_INFO(this->get_logger(), "Move forward");
+      current_msg_.data = {1.0, 1.0, 1.0, 1.0};
+      break;
+    case 1:
+      RCLCPP_INFO(this->get_logger(), "Move backward");
+      current_msg_.data = {-1.0, -1.0, -1.0, -1.0};
+      break;
+    case 2:
+      RCLCPP_INFO(this->get_logger(), "Move left");
+      current_msg_.data = {-1.0, 1.0, -1.0, 1.0};
+      break;
+    case 3:
+      RCLCPP_INFO(this->get_logger(), "Move right");
+      current_msg_.data = {1.0, -1.0, 1.0, -1.0};
+      break;
+    case 4:
+      RCLCPP_INFO(this->get_logger(), "Turn clockwise");
+      current_msg_.data = {1.0, -1.0, -1.0, 1.0};
+      break;
+    case 5:
+      RCLCPP_INFO(this->get_logger(), "Turn counter-clockwise");
+      current_msg_.data = {-1.0, 1.0, 1.0, -1.0};
+      break;
+    case 6:
+      RCLCPP_INFO(this->get_logger(), "Stop");
+      current_msg_.data = {0.0, 0.0, 0.0, 0.0};
+      break;
+    }
   }
 
-  std_msgs::msg::Float32MultiArray msg_;
+  std_msgs::msg::Float32MultiArray current_msg_;
   rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr publisher_;
-  //   rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Time motion_start_time_;
+  int motion_index_;
 };
 
 int main(int argc, char *argv[]) {

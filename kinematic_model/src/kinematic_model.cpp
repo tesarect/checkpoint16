@@ -1,6 +1,6 @@
+#include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/subscription.hpp"
-#include "geometry_msgs/msg/twist.hpp"
 #include "std_msgs/msg/detail/float32_multi_array__struct.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
 
@@ -42,14 +42,10 @@ private:
     double w_rl = msg->data[2];
     double w_rr = msg->data[3];
 
-    // Convert wheel speeds to twist using inverse kinematics
-    // For mecanum wheels, the inverse kinematic model is:
-    // [vx, vy, wz] = H_inv * [w_fl, w_fr, w_rl, w_rr]
-
     // Using the pseudo-inverse of the forward kinematics matrix
     double vx = r_ / 4.0 * (w_fl + w_fr + w_rl + w_rr);
-    double vy = r_ / 4.0 * (-w_fl + w_fr + w_rl - w_rr);
-    double wz = r_ / (4.0 * (l_ + w_)) * (-w_fl + w_fr - w_rl + w_rr);
+    double vy = r_ / 4.0 * (-w_fl + w_fr - w_rl + w_rr);
+    double wz = r_ / (4.0 * (l_ + w_)) * (-w_fl + w_fr + w_rl - w_rr);
 
     // Create and publish Twist message
     auto twist_msg = geometry_msgs::msg::Twist();
@@ -66,10 +62,9 @@ private:
                  "Published twist: vx=%.2f, vy=%.2f, wz=%.2f", vx, vy, wz);
   }
 
-  // std_msgs::msg::Float32MultiArray msg_;
+
   rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr subscriber_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
-  // Robot parameters
   double r_; // wheel radius
   double l_; // half wheel base
   double w_; // half track width
