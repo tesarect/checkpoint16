@@ -99,6 +99,7 @@ private:
         (position_error < 0.05) && (std::abs(error_yaw) < 0.1);
 
     if (waypoint_reached) {
+      rclcpp::sleep_for(2000ms);
       waypoint_index_++;
 
       // Check if all waypoints are completed

@@ -13,13 +13,13 @@ def generate_launch_description():
     return LaunchDescription([
 
         # Rviz2
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='screen',
-            arguments=['-d', rviz_config_path]
-        ),
+        # Node(
+        #     package='rviz2',
+        #     executable='rviz2',
+        #     name='rviz2',
+        #     output='screen',
+        #     arguments=['-d', rviz_config_path]
+        # ),
 
         # Start kinematic_model node to convert wheel speeds to cmd_vel
         Node(
@@ -34,6 +34,14 @@ def generate_launch_description():
             package='eight_trajectory',
             executable='eight_trajectory',
             name='eight_trajectory',
+            output='screen'
+        ),
+
+        # Logger (records trajectory)
+        Node(
+            package='eight_trajectory',
+            executable='trajectory_logger.py',
+            name='trajectory_logger',
             output='screen'
         ),
 

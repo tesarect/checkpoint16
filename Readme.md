@@ -40,11 +40,14 @@ ros2 topic echo /wheel_speed
 
 ## Motion wrt Absolute Frame
 ### Initiate the pattern path `8`
-Here the ROSbot XL will execute a bunch of waypoints that replicates a pattern `8`.
+Here the ROSbot XL will execute a bunch of waypoints that replicates a pattern `8` (as shown in the below image)
+![Expected result](resource/expected_eight_trajectory_waypoints.png)
 Launch the Simulation first and then launch `eight_trajectory`
 ```bash.sh
 source ~/ros2_ws/install/setup.bash && ros2 launch eight_trajectory eight_trajectory.launch.py
 ```
+### Obtained results
+![waypoint trajectory](resource/eight_trajectory_path.png)
 
 ## Package creation and dependencies
 

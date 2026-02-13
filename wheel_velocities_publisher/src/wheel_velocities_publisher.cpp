@@ -1,12 +1,12 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
+#include <chrono>
 
 using namespace std::chrono_literals;
 
 class WheelVelocitiesPublisher : public rclcpp::Node {
 public:
-  WheelVelocitiesPublisher()
-      : Node("wheel_velocities_publisher"), motion_index_(0) {
+  WheelVelocitiesPublisher() : Node("wheel_velocities_publisher") {
     publisher_ = this->create_publisher<std_msgs::msg::Float32MultiArray>(
         "/wheel_speed", 10);
 
@@ -20,8 +20,9 @@ public:
                 "Initialized wheel velocities publisher node");
 
     timer_ = this->create_wall_timer(
-        50ms, std::bind(&WheelVelocitiesPublisher::timer_callback, this));
+        20ms, std::bind(&WheelVelocitiesPublisher::timer_callback, this));
 
+    motion_index_ = 0;
     // Record start time
     motion_start_time_ = this->now();
     set_current_motion(0);
@@ -33,6 +34,7 @@ private:
     auto elapsed = (this->now() - motion_start_time_).seconds();
 
     if (elapsed >= 3.0) {
+      rclcpp::sleep_for(2000ms);
       motion_index_++;
 
       // End of motion sequence
@@ -54,27 +56,27 @@ private:
     switch (index) {
     case 0:
       RCLCPP_INFO(this->get_logger(), "Move forward");
-      current_msg_.data = {1.0, 1.0, 1.0, 1.0};
+      current_msg_.data = {2.0, 2.0, 2.0, 2.0};
       break;
     case 1:
       RCLCPP_INFO(this->get_logger(), "Move backward");
-      current_msg_.data = {-1.0, -1.0, -1.0, -1.0};
+      current_msg_.data = {-2.0, -2.0, -2.0, -2.0};
       break;
     case 2:
       RCLCPP_INFO(this->get_logger(), "Move left");
-      current_msg_.data = {-1.0, 1.0, -1.0, 1.0};
+      current_msg_.data = {-2.0, 2.0, -2.0, 2.0};
       break;
     case 3:
       RCLCPP_INFO(this->get_logger(), "Move right");
-      current_msg_.data = {1.0, -1.0, 1.0, -1.0};
+      current_msg_.data = {2.0, -2.0, 2.0, -2.0};
       break;
     case 4:
       RCLCPP_INFO(this->get_logger(), "Turn clockwise");
-      current_msg_.data = {1.0, -1.0, -1.0, 1.0};
+      current_msg_.data = {2.0, -2.0, -2.0, 2.0};
       break;
     case 5:
       RCLCPP_INFO(this->get_logger(), "Turn counter-clockwise");
-      current_msg_.data = {-1.0, 1.0, 1.0, -1.0};
+      current_msg_.data = {-2.0, 2.0, 2.0, -2.0};
       break;
     case 6:
       RCLCPP_INFO(this->get_logger(), "Stop");

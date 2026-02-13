@@ -45,12 +45,16 @@ install(TARGETS
 # Install launch files
 install(DIRECTORY
   launch
+  scripts
   DESTINATION share/${PROJECT_NAME}/
+  FILES_MATCHING PATTERN "*.py"
 )
 
 install(
   PROGRAMS
     scripts/loop_trajectory.py
+	scripts/plot_functions.py
+	scripts/trajectory_logger.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
